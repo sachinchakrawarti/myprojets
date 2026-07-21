@@ -6,17 +6,13 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
-def setup_logger(name: str = "naukri_automation", log_dir: str = "logs") -> logging.Logger:
+def setup_logger(name="naukri_automation", log_dir="logs"):
     """Setup logging configuration"""
     
-    # Create log directory
     Path(log_dir).mkdir(exist_ok=True)
     
-    # Create logger
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    
-    # Clear existing handlers
     logger.handlers.clear()
     
     # File handler

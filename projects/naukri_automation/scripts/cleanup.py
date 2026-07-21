@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Cleanup script for old reports and logs
+Cleanup script for removing old reports and logs
 """
 import os
-import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
+import shutil
 
 def cleanup_old_files(days=30):
     """Delete files older than specified days"""
@@ -21,7 +21,7 @@ def cleanup_old_files(days=30):
                     file_time = datetime.fromtimestamp(file.stat().st_mtime)
                     if file_time < cutoff:
                         file.unlink()
-                        print(f"Deleted: {file}")
+                        print(f"🗑️ Deleted: {file}")
     
     # Clean logs
     log_dir = Path("logs")
@@ -30,7 +30,9 @@ def cleanup_old_files(days=30):
             file_time = datetime.fromtimestamp(file.stat().st_mtime)
             if file_time < cutoff:
                 file.unlink()
-                print(f"Deleted: {file}")
+                print(f"🗑️ Deleted: {file}")
+    
+    print("✅ Cleanup completed!")
 
 if __name__ == "__main__":
     cleanup_old_files()

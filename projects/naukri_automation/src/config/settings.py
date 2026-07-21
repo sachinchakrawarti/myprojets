@@ -1,11 +1,10 @@
 """
-Configuration settings for Naukri automation
+Configuration settings
 """
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load environment variables
 load_dotenv()
 
 class Config:
@@ -29,12 +28,6 @@ class Config:
     
     # Browser settings
     HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
-    USER_DATA_DIR = os.getenv("USER_DATA_DIR", "./browser_data")
-    
-    # Report settings
-    REPORT_DIR = os.getenv("REPORT_DIR", "./reports")
     
     # Paths
     BASE_DIR = Path(__file__).parent.parent.parent
-    LOG_DIR = BASE_DIR / "logs"
-    PROFILE_DIR = BASE_DIR / "profiles"

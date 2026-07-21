@@ -2,13 +2,12 @@
 File handling utilities
 """
 import yaml
-import json
 from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
 
-def load_user_profile(profile_path: str = "profiles/user_profile.yaml") -> dict:
+def load_user_profile(profile_path="profiles/user_profile.yaml"):
     """Load user profile from YAML file"""
     try:
         profile_file = Path(profile_path)
@@ -22,7 +21,7 @@ def load_user_profile(profile_path: str = "profiles/user_profile.yaml") -> dict:
         logger.error(f"Failed to load profile: {str(e)}")
         return {}
 
-def save_user_profile(data: dict, profile_path: str = "profiles/user_profile.yaml"):
+def save_user_profile(data, profile_path="profiles/user_profile.yaml"):
     """Save user profile to YAML file"""
     try:
         Path(profile_path).parent.mkdir(exist_ok=True)

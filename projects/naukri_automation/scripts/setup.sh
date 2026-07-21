@@ -49,8 +49,8 @@ preferences:
 EOL
 fi
 
-# Create .env
-if [ ! -f ".env" ]; then
+# Create .env from example
+if [ ! -f ".env" ] && [ -f ".env.example" ]; then
     echo "Creating .env file..."
     cp .env.example .env
 fi
@@ -62,4 +62,3 @@ echo "Next steps:"
 echo "1. Update .env with your Naukri credentials"
 echo "2. Update profiles/user_profile.yaml with your details"
 echo "3. Run: python src/main.py"
-echo ""

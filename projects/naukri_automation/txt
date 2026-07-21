@@ -1,0 +1,8 @@
+# Run once
+python src/main.py
+
+# Or use run script
+python scripts/run.py
+
+# Clean old reports
+python scripts/cleanup.py

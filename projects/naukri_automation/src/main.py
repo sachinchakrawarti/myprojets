@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Main entry point for Naukri job automation
+Main entry point for Naukri automation
 """
 import sys
 from src.browser.browser_manager import BrowserManager
@@ -21,26 +21,18 @@ def main():
     print(Fore.CYAN + "=" * 60)
     
     try:
-        # Initialize browser
-        logger.info("Starting browser...")
         browser = BrowserManager(headless=Config.HEADLESS)
         
         if not browser.start():
             logger.error("Failed to start browser")
             return 1
         
-        # Initialize Naukri applier
         applier = NaukriApplier(browser)
-        
-        # Run automation
-        logger.info("Starting automation...")
         report = applier.run()
         
-        # Generate reports
         report_gen = ReportGenerator()
         report_files = report_gen.generate_all(report)
         
-        # Print summary
         print("\n" + Fore.GREEN + "=" * 60)
         print(Fore.GREEN + Style.BRIGHT + "✅ Automation Complete!")
         print(Fore.GREEN + "=" * 60)
@@ -51,13 +43,10 @@ def main():
         print(Fore.CYAN + f"📁 Reports saved to: {report_files}")
         print(Fore.GREEN + "=" * 60)
         
-        # Close browser
         browser.close()
-        logger.info("Browser closed")
         
     except KeyboardInterrupt:
-        print(Fore.YELLOW + "\n⚠️  User interrupted automation")
-        logger.info("User interrupted automation")
+        print(Fore.YELLOW + "\n⚠️  User interrupted")
         if 'browser' in locals():
             browser.close()
     except Exception as e:
