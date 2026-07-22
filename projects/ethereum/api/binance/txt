@@ -1,0 +1,5 @@
+node api/binance/index.js history
+node api/binance/index.js today
+node api/binance/index.js report
+node api/binance/index.js backup
+node api/binance/index.js indicators
