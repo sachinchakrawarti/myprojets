@@ -1,60 +1,57 @@
 /**
- * Binance Kline Mapper
+ * CoinGecko Mapper
  * -----------------------------------
- * Converts Binance response into
- * a normalized object used by the application.
+ * Convert CoinGecko response into
+ * application's standard object.
  */
 
 /**
- * Convert one Binance kline.
+ * Convert CoinGecko response.
  *
- * @param {Array} kline
+ * @param {Object} data
  * @returns {Object}
  */
-export function mapKline(kline) {
+export function mapMarket(data) {
+
+    const market = data.market_data;
 
     return {
 
-        date: new Date(kline[0])
+        date: new Date(data.last_updated)
             .toISOString()
             .split("T")[0],
 
-        symbol: "ETHUSDT",
+        symbol: data.symbol.toUpperCase(),
 
-        open: Number(kline[1]),
+        market_cap_usd:
+            market.market_cap.usd,
 
-        high: Number(kline[2]),
+        total_volume_usd:
+            market.total_volume.usd,
 
-        low: Number(kline[3]),
+        circulating_supply:
+            market.circulating_supply,
 
-        close: Number(kline[4]),
+        total_supply:
+            market.total_supply,
 
-        volume_eth: Number(kline[5]),
+        max_supply:
+            market.max_supply,
 
-        close_time: kline[6],
+        market_cap_rank:
+            data.market_cap_rank,
 
-        volume_usdt: Number(kline[7]),
-
-        number_of_trades: Number(kline[8]),
-
-        taker_buy_volume_eth: Number(kline[9]),
-
-        taker_buy_volume_usdt: Number(kline[10]),
-
-        source: "binance"
+        source: "coingecko"
 
     };
 
 }
 
 /**
- * Convert multiple Binance klines.
- *
- * @param {Array<Array>} klines
- * @returns {Array<Object>}
+ * Alias
  */
-export function mapKlines(klines) {
+export function map(data) {
 
-    return klines.map(mapKline);
+    return mapMarket(data);
 
 }

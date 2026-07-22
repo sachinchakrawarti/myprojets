@@ -1,57 +1,42 @@
 /**
- * CoinGecko Mapper
+ * CoinGecko Provider
  * -----------------------------------
- * Convert CoinGecko response into
- * application's standard object.
+ * Public interface for CoinGecko historical market data.
  */
 
+import { getMarketData } from "./market.js";
+import { mapMarket } from "./mapper.js";
+
 /**
- * Convert CoinGecko response.
+ * Get normalized market data.
  *
- * @param {Object} data
- * @returns {Object}
+ * @returns {Promise<Object>}
  */
-export function mapMarket(data) {
+export async function getDailyMarketData() {
 
-    const market = data.market_data;
+    try {
 
-    return {
+        const rawData = await getMarketData();
 
-        date: new Date(data.last_updated)
-            .toISOString()
-            .split("T")[0],
+        return mapMarket(rawData);
 
-        symbol: data.symbol.toUpperCase(),
+    } catch (error) {
 
-        market_cap_usd:
-            market.market_cap.usd,
+        console.error(
+            "[CoinGecko Provider] Failed to fetch market data."
+        );
 
-        total_volume_usd:
-            market.total_volume.usd,
+        throw error;
 
-        circulating_supply:
-            market.circulating_supply,
-
-        total_supply:
-            market.total_supply,
-
-        max_supply:
-            market.max_supply,
-
-        market_cap_rank:
-            data.market_cap_rank,
-
-        source: "coingecko"
-
-    };
+    }
 
 }
 
 /**
- * Alias
+ * Default Export
  */
-export function map(data) {
+export default {
 
-    return mapMarket(data);
+    getDailyMarketData
 
-}
+};
