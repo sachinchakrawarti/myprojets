@@ -1,21 +1,21 @@
 /**
- * Binance API Configuration
+ * CryptoCompare API Configuration
  * -----------------------------------
- * Centralized configuration for all Binance API requests.
+ * Centralized configuration for CryptoCompare API.
  */
 
 const config = {
-    baseURL: "https://api.binance.com/api/v3",
+    baseURL: "https://min-api.cryptocompare.com",
 
     endpoints: {
-        klines: "/klines"
+        histoday: "/data/v2/histoday"
     },
 
-    defaultSymbol: "ETHUSDT",
+    defaultFromSymbol: "ETH",
 
-    defaultInterval: "1d",
+    defaultToSymbol: "USD",
 
-    defaultLimit: 1000,
+    defaultLimit: 2000,
 
     timeout: 10000
 };
