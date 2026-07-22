@@ -1,60 +1,52 @@
 /**
- * Binance Kline Mapper
+ * CryptoCompare Mapper
  * -----------------------------------
- * Converts Binance response into
- * a normalized object used by the application.
+ * Converts CryptoCompare response into
+ * application's normalized market object.
  */
 
 /**
- * Convert one Binance kline.
+ * Convert one historical candle.
  *
- * @param {Array} kline
+ * @param {Object} candle
  * @returns {Object}
  */
-export function mapKline(kline) {
+export function mapHistory(candle) {
 
     return {
 
-        date: new Date(kline[0])
+        date: new Date(candle.time * 1000)
             .toISOString()
             .split("T")[0],
 
-        symbol: "ETHUSDT",
+        symbol: "ETH",
 
-        open: Number(kline[1]),
+        open: candle.open,
 
-        high: Number(kline[2]),
+        high: candle.high,
 
-        low: Number(kline[3]),
+        low: candle.low,
 
-        close: Number(kline[4]),
+        close: candle.close,
 
-        volume_eth: Number(kline[5]),
+        volume_eth: candle.volumefrom,
 
-        close_time: kline[6],
+        volume_usd: candle.volumeto,
 
-        volume_usdt: Number(kline[7]),
-
-        number_of_trades: Number(kline[8]),
-
-        taker_buy_volume_eth: Number(kline[9]),
-
-        taker_buy_volume_usdt: Number(kline[10]),
-
-        source: "binance"
+        source: "cryptocompare"
 
     };
 
 }
 
 /**
- * Convert multiple Binance klines.
+ * Convert multiple candles.
  *
- * @param {Array<Array>} klines
+ * @param {Array<Object>} history
  * @returns {Array<Object>}
  */
-export function mapKlines(klines) {
+export function mapHistoryList(history) {
 
-    return klines.map(mapKline);
+    return history.map(mapHistory);
 
 }
