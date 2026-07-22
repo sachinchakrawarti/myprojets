@@ -6,7 +6,7 @@
 
 import * as Binance from "./binance/index.js";
 import * as CoinGecko from "./coingecko/index.js";
-import * as CryptoCompare from "./cryptocompare/index.js";
+
 
 /**
  * Named Exports
@@ -17,8 +17,7 @@ export {
 
     CoinGecko,
 
-    CryptoCompare
-
+  
 };
 
 /**
@@ -30,6 +29,6 @@ export default {
 
     CoinGecko,
 
-    CryptoCompare
+
 
 };

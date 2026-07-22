@@ -1,7 +1,7 @@
 import {
     Binance,
     CoinGecko,
-    CryptoCompare
+
 } from "../providers/index.js";
 
 async function main() {
@@ -23,15 +23,6 @@ async function main() {
 
         console.table([gecko]);
 
-        console.log("\n========== CRYPTOCOMPARE ==========\n");
-
-        const cc = await CryptoCompare.getDailyMarketData({
-            fromSymbol: "ETH",
-            toSymbol: "USD",
-            limit: 2
-        });
-
-        console.table(cc);
 
     } catch (error) {
 
