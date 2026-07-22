@@ -1,23 +1,19 @@
 /**
- * Binance API Configuration
+ * CoinGecko API Configuration
  * -----------------------------------
- * Centralized configuration for all Binance API requests.
+ * Centralized configuration for CoinGecko API.
  */
 
 const config = {
-    baseURL: "https://api.binance.com/api/v3",
+    baseURL: "https://api.coingecko.com/api/v3",
 
     endpoints: {
-        klines: "/klines"
+        market: "/coins/ethereum"
     },
 
-    defaultSymbol: "ETHUSDT",
+    timeout: 10000,
 
-    defaultInterval: "1d",
-
-    defaultLimit: 1000,
-
-    timeout: 10000
+    vsCurrency: "usd"
 };
 
 export default config;
