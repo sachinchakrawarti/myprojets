@@ -1,77 +1,167 @@
 /**
- * Repository
+ * Database Repository
  */
 
-import db from "./connection.js";
+import getDatabase from "./connection.js";
+
 import {
+
     INSERT_MARKET,
+
     SELECT_ALL,
+
     SELECT_LAST_DATE
+
 } from "./queries.js";
 
-const insert = db.prepare(INSERT_MARKET);
+/**
+ * Save One Record
+ */
+export async function saveMarket(data) {
 
-const selectAll = db.prepare(SELECT_ALL);
+    const db = await getDatabase();
 
-const lastDate = db.prepare(SELECT_LAST_DATE);
+    return db.run(
 
-export function saveMarket(data) {
+        INSERT_MARKET,
 
-    return insert.run(
+        [
 
-        data.date,
-        data.symbol,
+            data.date,
 
-        data.open,
-        data.high,
-        data.low,
-        data.close,
+            data.symbol,
 
-        data.volume_eth,
-        data.volume_usdt,
+            data.open,
+            data.high,
+            data.low,
+            data.close,
 
-        data.number_of_trades,
+            data.volume_eth,
+            data.volume_usdt,
 
-        data.taker_buy_volume_eth,
-        data.taker_buy_volume_usdt,
+            data.number_of_trades,
 
-        data.market_cap_usd,
-        data.total_volume_usd,
+            data.taker_buy_volume_eth,
+            data.taker_buy_volume_usdt,
 
-        data.circulating_supply,
-        data.total_supply,
-        data.max_supply,
+            data.market_cap_usd,
+            data.total_volume_usd,
 
-        data.market_cap_rank
+            data.circulating_supply,
+            data.total_supply,
+            data.max_supply,
+
+            data.market_cap_rank
+
+        ]
 
     );
 
 }
 
-export function saveMarkets(list) {
+/**
+ * Save Multiple Records
+ */
+export async function saveMarkets(records) {
 
-    const transaction = db.transaction((rows) => {
+    const db = await getDatabase();
 
-        for (const row of rows) {
+    await db.exec("BEGIN TRANSACTION");
 
-            saveMarket(row);
+    try {
+
+        for (const record of records) {
+
+            await db.run(
+
+                INSERT_MARKET,
+
+                [
+
+                    record.date,
+
+                    record.symbol,
+
+                    record.open,
+                    record.high,
+                    record.low,
+                    record.close,
+
+                    record.volume_eth,
+                    record.volume_usdt,
+
+                    record.number_of_trades,
+
+                    record.taker_buy_volume_eth,
+                    record.taker_buy_volume_usdt,
+
+                    record.market_cap_usd,
+                    record.total_volume_usd,
+
+                    record.circulating_supply,
+                    record.total_supply,
+                    record.max_supply,
+
+                    record.market_cap_rank
+
+                ]
+
+            );
 
         }
 
-    });
+        await db.exec("COMMIT");
 
-    transaction(list);
+    }
+
+    catch (error) {
+
+        await db.exec("ROLLBACK");
+
+        throw error;
+
+    }
+
+}
+
+/**
+ * Get All Records
+ */
+export async function findAll() {
+
+    const db = await getDatabase();
+
+    return db.all(
+
+        SELECT_ALL
+
+    );
 
 }
 
-export function findAll() {
+/**
+ * Latest Saved Date
+ */
+export async function getLastDate() {
 
-    return selectAll.all();
+    const db = await getDatabase();
+
+    return db.get(
+
+        SELECT_LAST_DATE
+
+    );
 
 }
 
-export function getLastDate() {
+export default {
 
-    return lastDate.get();
+    saveMarket,
 
-}
+    saveMarkets,
+
+    findAll,
+
+    getLastDate
+
+};
