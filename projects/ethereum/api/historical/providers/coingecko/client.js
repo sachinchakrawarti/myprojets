@@ -1,8 +1,9 @@
 import axios from "axios";
+import { BASE_URL } from "./config.js";
 
-export default axios.create({
+const client = axios.create({
 
-    baseURL: "https://api.coingecko.com/api/v3",
+    baseURL: BASE_URL,
 
     timeout: 15000,
 
@@ -10,8 +11,12 @@ export default axios.create({
 
         Accept: "application/json",
 
-        "User-Agent": "ethereum-historical-api"
+        "Content-Type": "application/json",
+
+        "User-Agent": "Ethereum-Historical/1.0"
 
     }
 
 });
+
+export default client;
