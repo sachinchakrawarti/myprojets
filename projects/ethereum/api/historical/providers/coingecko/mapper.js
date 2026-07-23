@@ -1,57 +1,23 @@
 /**
- * CoinGecko Mapper
- * -----------------------------------
- * Convert CoinGecko response into
- * application's standard object.
+ * Convert CoinGecko Market Chart response.
  */
 
-/**
- * Convert CoinGecko response.
- *
- * @param {Object} data
- * @returns {Object}
- */
 export function mapMarket(data) {
 
-    const market = data.market_data;
+    return data.market_caps.map((marketCap, index) => ({
 
-    return {
-
-        date: new Date(data.last_updated)
+        date: new Date(marketCap[0])
             .toISOString()
             .split("T")[0],
 
-        symbol: data.symbol.toUpperCase(),
+        symbol: "ETH",
 
-        market_cap_usd:
-            market.market_cap.usd,
+        market_cap_usd: marketCap[1],
 
-        total_volume_usd:
-            market.total_volume.usd,
-
-        circulating_supply:
-            market.circulating_supply,
-
-        total_supply:
-            market.total_supply,
-
-        max_supply:
-            market.max_supply,
-
-        market_cap_rank:
-            data.market_cap_rank,
+        total_volume_usd: data.total_volumes[index][1],
 
         source: "coingecko"
 
-    };
-
-}
-
-/**
- * Alias
- */
-export function map(data) {
-
-    return mapMarket(data);
+    }));
 
 }

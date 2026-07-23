@@ -1,42 +1,14 @@
-/**
- * CoinGecko Provider
- * -----------------------------------
- * Public interface for CoinGecko historical market data.
- */
-
 import { getMarketData } from "./market.js";
 import { mapMarket } from "./mapper.js";
 
-/**
- * Get normalized market data.
- *
- * @returns {Promise<Object>}
- */
-export async function getDailyMarketData() {
+export async function getDailyMarketData(days = 30) {
 
-    try {
+    const raw = await getMarketData(days);
 
-        const rawData = await getMarketData();
-
-        return mapMarket(rawData);
-
-    } catch (error) {
-
-        console.error(
-            "[CoinGecko Provider] Failed to fetch market data."
-        );
-
-        throw error;
-
-    }
+    return mapMarket(raw);
 
 }
 
-/**
- * Default Export
- */
 export default {
-
     getDailyMarketData
-
 };

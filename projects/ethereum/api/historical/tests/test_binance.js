@@ -6,7 +6,7 @@ async function main() {
 
         const data = await Binance.getDailyMarketData({
             symbol: "ETHUSDT",
-            limit: 5
+            limit:30
         });
 
         console.table(data);

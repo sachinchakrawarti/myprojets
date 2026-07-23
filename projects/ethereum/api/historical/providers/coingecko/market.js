@@ -1,29 +1,20 @@
 /**
- * CoinGecko Market API
+ * CoinGecko Market Chart API
  * -----------------------------------
- * Fetch Ethereum market information.
+ * Fetch historical market cap and volume.
  */
 
 import client from "./client.js";
-import config from "./config.js";
 
-/**
- * Fetch Ethereum market data.
- *
- * @returns {Promise<Object>}
- */
-export async function getMarketData() {
+export async function getMarketData(days = 30) {
 
     const response = await client.get(
-        config.endpoints.market,
+        "/coins/ethereum/market_chart",
         {
             params: {
-                localization: false,
-                tickers: false,
-                market_data: true,
-                community_data: false,
-                developer_data: false,
-                sparkline: false
+                vs_currency: "usd",
+                days,
+                interval: "daily"
             }
         }
     );
