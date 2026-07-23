@@ -1,5 +1,7 @@
 /**
- * CoinGecko Market Chart API
+ * providers/coingecko/market.js
+ * -----------------------------------------
+ * CoinGecko Historical Market Data
  */
 
 import client from "./client.js";
@@ -16,6 +18,10 @@ export async function getMarketData(days = 30) {
 
         try {
 
+            console.log(
+                `[CoinGecko] GET /coins/ethereum/market_chart (Attempt ${attempt})`
+            );
+
             const response = await client.get(
                 "/coins/ethereum/market_chart",
                 {
@@ -27,19 +33,58 @@ export async function getMarketData(days = 30) {
                 }
             );
 
-            return response.data;
-
-        } catch (error) {
-
-            const status = error.response?.status;
-
             console.log(
-                `[CoinGecko] Attempt ${attempt}/${MAX_RETRIES} failed (${status})`
+                `[CoinGecko] Status: ${response.status}`
             );
 
-            if (attempt === MAX_RETRIES) {
-                throw error;
+            console.log(
+                `[CoinGecko] Records: ${response.data.market_caps.length}`
+            );
+
+            return response.data;
+
+        }
+
+        catch (error) {
+
+            const status = error.response?.status ?? "NO_RESPONSE";
+
+            console.error(
+                `[CoinGecko] Attempt ${attempt} failed`
+            );
+
+            console.error(
+                "Status:",
+                status
+            );
+
+            console.error(
+                "Message:",
+                error.message
+            );
+
+            if (error.response) {
+
+                console.error(
+                    "Response Body:"
+                );
+
+                console.dir(
+                    error.response.data,
+                    { depth: null }
+                );
+
             }
+
+            if (attempt === MAX_RETRIES) {
+
+                throw error;
+
+            }
+
+            console.log(
+                "Retrying in 2 seconds...\n"
+            );
 
             await sleep(2000);
 
