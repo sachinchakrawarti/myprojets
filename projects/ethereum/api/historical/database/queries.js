@@ -3,6 +3,7 @@
  */
 
 export const INSERT_MARKET = `
+
 INSERT OR REPLACE INTO historical_market (
 
     date,
@@ -47,15 +48,23 @@ VALUES (
 ?
 
 );
+
 `;
 
 export const SELECT_ALL = `
+
 SELECT *
+
 FROM historical_market
+
 ORDER BY date;
+
 `;
 
 export const SELECT_LAST_DATE = `
+
 SELECT MAX(date) AS last_date
+
 FROM historical_market;
+
 `;
