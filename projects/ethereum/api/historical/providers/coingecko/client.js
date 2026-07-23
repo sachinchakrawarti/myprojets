@@ -1,69 +1,17 @@
-/**
- * CoinGecko HTTP Client
- * -----------------------------------
- * Axios client configured for CoinGecko REST API.
- */
-
 import axios from "axios";
-import config from "./config.js";
 
-const client = axios.create({
-    baseURL: config.baseURL,
-    timeout: config.timeout,
+export default axios.create({
+
+    baseURL: "https://api.coingecko.com/api/v3",
+
+    timeout: 15000,
+
     headers: {
+
         Accept: "application/json",
-        "Content-Type": "application/json"
-    }
-});
 
-/**
- * Request Logger
- */
-client.interceptors.request.use((request) => {
-
-    console.log(
-        `[CoinGecko] ${request.method?.toUpperCase()} ${request.baseURL}${request.url}`
-    );
-
-    return request;
-
-});
-
-/**
- * Response Logger
- */
-client.interceptors.response.use(
-
-    (response) => {
-
-        console.log(`[CoinGecko] Status: ${response.status}`);
-
-        return response;
-
-    },
-
-    (error) => {
-
-        if (error.response) {
-
-            console.error(
-                `[CoinGecko] Error ${error.response.status}:`,
-                error.response.data
-            );
-
-        } else {
-
-            console.error(
-                "[CoinGecko] Network Error:",
-                error.message
-            );
-
-        }
-
-        return Promise.reject(error);
+        "User-Agent": "ethereum-historical-api"
 
     }
 
-);
-
-export default client;
+});
