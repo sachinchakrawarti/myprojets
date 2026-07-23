@@ -1,19 +1,5 @@
-/**
- * CoinGecko API Configuration
- * -----------------------------------
- * Centralized configuration for CoinGecko API.
- */
+export const BASE_URL = "https://api.coingecko.com/api/v3";
 
-const config = {
-    baseURL: "https://api.coingecko.com/api/v3",
-
-    endpoints: {
-        market: "/coins/ethereum"
-    },
-
-    timeout: 10000,
-
-    vsCurrency: "usd"
+export default {
+    BASE_URL
 };
-
-export default config;
