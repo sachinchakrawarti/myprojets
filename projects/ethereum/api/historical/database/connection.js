@@ -2,9 +2,38 @@
  * SQLite Connection
  */
 
-import Database from "better-sqlite3";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+
 import config from "./config.js";
 
-const db = new Database(config.database);
+let database = null;
 
-export default db;
+/**
+ * Get SQLite Connection
+ */
+export async function getDatabase() {
+
+    if (database) {
+
+        return database;
+
+    }
+
+    database = await open({
+
+        filename: config.DATABASE_PATH,
+
+        driver: sqlite3.Database
+
+    });
+
+    console.log(
+        `[SQLite] Connected: ${config.DATABASE_PATH}`
+    );
+
+    return database;
+
+}
+
+export default getDatabase;
