@@ -1,0 +1,22 @@
+market_cap/
+├── fetch.js
+├── mapper.js
+├── service.js
+├── validator.js
+├── README.md
+├── tests/
+│   └── test_market_cap.js
+└── index.js
+
+
+
+
+volume/
+├── fetch.js
+├── mapper.js
+├── service.js
+├── validator.js
+├── README.md
+├── tests/
+│   └── test_volume.js
+└── index.js
