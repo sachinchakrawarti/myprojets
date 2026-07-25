@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>#0001: The Architect — Emperor Samar Chakrawarti</title>
     
-    <!-- Fonts -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <!-- Styles -->
@@ -16,281 +16,128 @@
 </head>
 <body>
 
-    <!-- ============ TOP NAVIGATION ============ -->
-    <nav class="top-nav" id="topNav">
-        <div class="nav-left">
-            <a href="#" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back</span>
-            </a>
-            <div class="brand">
-                <span class="brand-icon">⚡</span>
-                <span class="brand-name">APEX COMICS</span>
+    <div id="app">
+        <!-- TOP NAVIGATION -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <button class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+                <div class="brand">
+                    <span class="brand-icon">⚡</span>
+                    <span class="brand-name">APEX COMICS</span>
+                </div>
             </div>
-        </div>
-        <div class="nav-center">
-            <h1 class="issue-title">#0001: <span class="highlight">The Architect</span></h1>
-        </div>
-        <div class="nav-right">
-            <button class="nav-btn" id="fullscreenBtn" title="Fullscreen">
-                <i class="fas fa-expand"></i>
-            </button>
-            <button class="nav-btn" id="settingsBtn" title="Settings">
-                <i class="fas fa-cog"></i>
-            </button>
-        </div>
-    </nav>
+            <div class="nav-center">
+                <h1 class="issue-title" id="issueTitle">#0001: <span class="highlight">The Architect</span></h1>
+            </div>
+            <div class="nav-right">
+                <button class="lang-btn" id="langToggle" title="Toggle Language">
+                    <i class="fas fa-language"></i>
+                    <span id="langLabel">EN</span>
+                </button>
+                <button class="nav-btn" id="fullscreenBtn" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </nav>
 
-    <!-- ============ COMIC VIEWER ============ -->
-    <main class="comic-viewer" id="comicViewer">
-        <div class="comic-container" id="comicContainer">
+        <!-- COMIC VIEWER -->
+        <main class="comic-viewer" id="comicViewer">
+            <div class="comic-container" id="comicContainer">
+                <!-- Pages rendered by JavaScript -->
+            </div>
+        </main>
+
+        <!-- PAGE CONTROLS -->
+        <div class="page-controls" id="pageControls">
+            <button class="ctrl-btn" id="prevPage" title="Previous Page">
+                <i class="fas fa-chevron-left"></i>
+            </button>
             
-            <!-- Page 1 -->
-            <div class="comic-page active" data-page="1">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-01.jpg" alt="Page 1 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">1</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
+            <div class="page-indicator">
+                <span id="currentPageDisplay">1</span>
+                <span class="separator">/</span>
+                <span id="totalPagesDisplay">12</span>
             </div>
 
-            <!-- Page 2 -->
-            <div class="comic-page" data-page="2">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-02.jpg" alt="Page 2 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">2</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 3 -->
-            <div class="comic-page" data-page="3">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-03.jpg" alt="Page 3 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">3</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 4 -->
-            <div class="comic-page" data-page="4">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-04.jpg" alt="Page 4 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">4</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 5 -->
-            <div class="comic-page" data-page="5">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-05.jpg" alt="Page 5 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">5</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 6 -->
-            <div class="comic-page" data-page="6">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-06.jpg" alt="Page 6 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">6</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 7 -->
-            <div class="comic-page" data-page="7">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-07.jpg" alt="Page 7 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">7</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 8 -->
-            <div class="comic-page" data-page="8">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-08.jpg" alt="Page 8 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">8</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 9 -->
-            <div class="comic-page" data-page="9">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-09.jpg" alt="Page 9 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">9</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 10 -->
-            <div class="comic-page" data-page="10">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-10.jpg" alt="Page 10 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">10</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 11 -->
-            <div class="comic-page" data-page="11">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-11.jpg" alt="Page 11 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">11</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page 12 -->
-            <div class="comic-page" data-page="12">
-                <div class="page-wrapper">
-                    <img src="assets/pages/page-12.jpg" alt="Page 12 - The Architect" class="page-img" loading="lazy">
-                    <div class="page-number">12</div>
-                    <div class="page-overlay">
-                        <div class="panel-highlight" data-panel="1"></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- ============ PAGE CONTROLS ============ -->
-    <div class="page-controls" id="pageControls">
-        <button class="ctrl-btn" id="prevPage" title="Previous Page">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        
-        <div class="page-indicator">
-            <span id="currentPageDisplay">1</span>
-            <span class="separator">/</span>
-            <span id="totalPagesDisplay">12</span>
-        </div>
-
-        <button class="ctrl-btn" id="nextPage" title="Next Page">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-
-    <!-- ============ BOTTOM TOOLBAR ============ -->
-    <div class="bottom-toolbar" id="bottomToolbar">
-        <div class="toolbar-left">
-            <button class="tool-btn" id="zoomInBtn" title="Zoom In">
-                <i class="fas fa-search-plus"></i>
-            </button>
-            <button class="tool-btn" id="zoomOutBtn" title="Zoom Out">
-                <i class="fas fa-search-minus"></i>
-            </button>
-            <span class="zoom-level" id="zoomLevel">100%</span>
-        </div>
-        <div class="toolbar-center">
-            <button class="tool-btn" id="viewModeBtn" title="Toggle View Mode">
-                <i class="fas fa-columns"></i>
-                <span class="tool-label">Single</span>
-            </button>
-            <button class="tool-btn" id="autoScrollBtn" title="Auto Scroll">
-                <i class="fas fa-play"></i>
-                <span class="tool-label">Auto</span>
+            <button class="ctrl-btn" id="nextPage" title="Next Page">
+                <i class="fas fa-chevron-right"></i>
             </button>
         </div>
-        <div class="toolbar-right">
-            <button class="tool-btn" id="thumbnailsBtn" title="Thumbnails">
-                <i class="fas fa-th"></i>
-                <span class="tool-label">Thumbs</span>
-            </button>
-            <button class="tool-btn" id="infoBtn" title="Issue Info">
-                <i class="fas fa-info-circle"></i>
-            </button>
-        </div>
-    </div>
 
-    <!-- ============ THUMBNAILS SIDEBAR ============ -->
-    <div class="thumbnails-sidebar" id="thumbnailsSidebar">
-        <div class="sidebar-header">
-            <h3>Pages</h3>
-            <button class="close-sidebar" id="closeThumbnails">
-                <i class="fas fa-times"></i>
-            </button>
+        <!-- BOTTOM TOOLBAR -->
+        <div class="bottom-toolbar">
+            <div class="toolbar-left">
+                <button class="tool-btn" id="zoomInBtn">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="tool-btn" id="zoomOutBtn">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+            </div>
+            <div class="toolbar-center">
+                <button class="tool-btn active" id="viewModeBtn">
+                    <i class="fas fa-columns"></i>
+                    <span class="tool-label">Single</span>
+                </button>
+                <button class="tool-btn" id="autoScrollBtn">
+                    <i class="fas fa-play"></i>
+                    <span class="tool-label">Auto</span>
+                </button>
+            </div>
+            <div class="toolbar-right">
+                <button class="tool-btn" id="infoBtn">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="tool-label">Info</span>
+                </button>
+            </div>
         </div>
-        <div class="thumbnails-grid" id="thumbnailsGrid">
-            <!-- Generated by JavaScript -->
-        </div>
-    </div>
 
-    <!-- ============ ISSUE INFO MODAL ============ -->
-    <div class="modal" id="infoModal">
-        <div class="modal-content">
-            <button class="modal-close" id="closeInfoModal">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-body">
-                <h2>#0001: The Architect</h2>
-                <div class="issue-meta">
-                    <span><strong>Series:</strong> The Chakrawarti Chronicles</span>
-                    <span><strong>Writer:</strong> Sachin Chakrawarti</span>
-                    <span><strong>Artist:</strong> TBD</span>
-                    <span><strong>Release:</strong> 2026</span>
-                    <span><strong>Pages:</strong> 12</span>
-                </div>
-                <div class="issue-synopsis">
-                    <h3>Synopsis</h3>
-                    <p>
-                        In a world where science and magic collide, <strong>Emperor Samar Chakrawarti</strong> 
-                        begins his greatest experiment — the fusion of human consciousness with advanced 
-                        cybernetics and forbidden arcane arts. As the <strong>Chakrawarti Empire</strong> 
-                        rises, Samar must confront not only the world that fears him but also the ghosts 
-                        of his own past. The journey begins here.
-                    </p>
-                </div>
-                <div class="issue-credits">
-                    <h3>Credits</h3>
-                    <ul>
-                        <li><strong>Created By:</strong> Sachin Chakrawarti</li>
-                        <li><strong>Character Design:</strong> TBD</li>
-                        <li><strong>Lettering:</strong> TBD</li>
-                        <li><strong>Colorist:</strong> TBD</li>
-                    </ul>
+        <!-- INFO MODAL -->
+        <div class="modal" id="infoModal">
+            <div class="modal-content">
+                <button class="modal-close" id="closeInfoModal">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="modal-body">
+                    <h2 id="modalTitle">#0001: The Architect</h2>
+                    <div class="issue-meta">
+                        <span><strong>Series:</strong> <span id="modalSeries">The Chakrawarti Chronicles</span></span>
+                        <span><strong>Writer:</strong> <span id="modalWriter">Sachin Chakrawarti</span></span>
+                        <span><strong>Artist:</strong> <span id="modalArtist">TBD</span></span>
+                        <span><strong>Release:</strong> <span id="modalRelease">2026</span></span>
+                        <span><strong>Pages:</strong> <span id="modalPages">12</span></span>
+                    </div>
+                    <div class="issue-synopsis">
+                        <h3>Synopsis</h3>
+                        <p id="modalSynopsis">
+                            In a world where science and magic collide, <strong>Emperor Samar Chakrawarti</strong> 
+                            begins his greatest experiment — the fusion of human consciousness with advanced 
+                            cybernetics and forbidden arcane arts. As the <strong>Chakrawarti Empire</strong> 
+                            rises, Samar must confront not only the world that fears him but also the ghosts 
+                            of his own past. The journey begins here.
+                        </p>
+                    </div>
+                    <div class="issue-credits">
+                        <h3>Credits</h3>
+                        <ul>
+                            <li><strong>Created By:</strong> Sachin Chakrawarti</li>
+                            <li><strong>Character Design:</strong> TBD</li>
+                            <li><strong>Lettering:</strong> TBD</li>
+                            <li><strong>Colorist:</strong> TBD</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ============ LOADING OVERLAY ============ -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loader">
-            <div class="loader-ring"></div>
-            <div class="loader-ring"></div>
-            <div class="loader-ring"></div>
-            <p>Loading Issue #0001...</p>
-        </div>
-    </div>
-
-    <!-- ============ SCRIPTS ============ -->
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="data/The_Architect_Data_English.js"></script>
+    <script src="data/The_Architect_Data_Hindi.js"></script>
+    <script src="Script.js"></script>
 </body>
 </html>
