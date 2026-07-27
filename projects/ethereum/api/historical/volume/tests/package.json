@@ -1,0 +1,9 @@
+{
+  "name": "ethereum-trading-bot",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "test:volume": "node api/historical/volume/tests/test_quick.js",
+    "test:volume:full": "node api/historical/volume/tests/test_volume.js"
+  }
+}
