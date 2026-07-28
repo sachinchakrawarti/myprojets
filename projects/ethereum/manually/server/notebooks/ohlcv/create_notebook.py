@@ -14,7 +14,7 @@ def create_notebook(cells, filename):
         "cells": cells,
         "metadata": {
             "kernelspec": {
-                "display_name": "Python 3",
+                "display_name": "Python 3 (ipykernel)",
                 "language": "python",
                 "name": "python3"
             },
@@ -41,7 +41,96 @@ def create_notebook(cells, filename):
     # Write notebook
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(notebook, f, indent=2, ensure_ascii=False)
-    print(f"Created: {filename}")
+    print(f"✅ Created: {filename}")
+
+# ====================================================================
+# BASE IMPORT CELL (Works for all notebook locations)
+# ====================================================================
+
+def get_base_imports():
+    """Base imports that work for all notebooks"""
+    return {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [
+            "# ====================================================================",
+            "# 📦 IMPORTS AND SETUP",
+            "# ====================================================================",
+            "",
+            "import pandas as pd",
+            "import numpy as np",
+            "import matplotlib.pyplot as plt",
+            "import seaborn as sns",
+            "from pathlib import Path",
+            "import sys",
+            "import os",
+            "import warnings",
+            "warnings.filterwarnings('ignore')",
+            "",
+            "# Set plotting style",
+            "plt.style.use('seaborn-v0_8-darkgrid')",
+            "sns.set_palette(\"husl\")",
+            "%matplotlib inline",
+            "",
+            "# ====================================================================",
+            "# 🔧 PATH CONFIGURATION - Find utils folder",
+            "# ====================================================================",
+            "",
+            "# Get notebook location",
+            "notebook_dir = Path(os.getcwd()).resolve()",
+            "",
+            "def find_ohlcv_root(start_path):",
+            "    current = start_path",
+            "    for _ in range(5):",
+            "        if (current / 'utils').exists() and (current / 'utils' / 'data_loader.py').exists():",
+            "            return current",
+            "        current = current.parent",
+            "    return None",
+            "",
+            "# Find ohlcv root",
+            "ohlcv_root = find_ohlcv_root(notebook_dir)",
+            "",
+            "if ohlcv_root:",
+            "    utils_path = ohlcv_root / 'utils'",
+            "    if str(utils_path) not in sys.path:",
+            "        sys.path.insert(0, str(utils_path))",
+            "    print(f\"✅ OHLCV root: {ohlcv_root}\")",
+            "    print(f\"✅ Utils path: {utils_path}\")",
+            "else:",
+            "    print(\"⚠️  Could not find ohlcv root. Trying relative path...\")",
+            "    for rel_path in ['../../utils', '../../../utils', '../../../../utils']:",
+            "        test_path = (notebook_dir / rel_path).resolve()",
+            "        if test_path.exists() and (test_path / 'data_loader.py').exists():",
+            "            if str(test_path) not in sys.path:",
+            "                sys.path.insert(0, str(test_path))",
+            "            print(f\"✅ Found utils at: {test_path}\")",
+            "            break",
+            "",
+            "# ====================================================================",
+            "# 📦 IMPORT UTILITIES",
+            "# ====================================================================",
+            "",
+            "try:",
+            "    from data_loader import DataLoader",
+            "    from visualizations import TradingVisualizer",
+            "    from trading_helpers import TradingHelpers",
+            "    print(\"✅ All utilities imported successfully!\")",
+            "except ImportError as e:",
+            "    print(f\"❌ Import error: {e}\")",
+            "    print(\"⚠️  Please ensure utils folder exists with required files.\")",
+            "    raise",
+            "",
+            "print(\"\\n\" + \"=\" * 60)",
+            "print(\"✅ SETUP COMPLETE\")",
+            "print(\"=\" * 60)"
+        ]
+    }
+
+# ====================================================================
+# NOTEBOOK CELL DEFINITIONS
+# ====================================================================
 
 def get_data_overview_cells():
     """Cells for 01_data_overview.ipynb"""
@@ -66,35 +155,12 @@ def get_data_overview_cells():
                 "- SQLite DB: `../../../data/ETH.db`"
             ]
         },
+        get_base_imports(),
         {
             "cell_type": "code",
-            "metadata": {},
-            "source": [
-                "import pandas as pd\n",
-                "import numpy as np\n",
-                "import matplotlib.pyplot as plt\n",
-                "import seaborn as sns\n",
-                "from pathlib import Path\n",
-                "import warnings\n",
-                "warnings.filterwarnings('ignore')\n",
-                "\n",
-                "# Set plotting style\n",
-                "plt.style.use('seaborn-v0_8-darkgrid')\n",
-                "sns.set_palette(\"husl\")\n",
-                "%matplotlib inline\n",
-                "\n",
-                "# Import utilities\n",
-                "import sys\n",
-                "sys.path.append('..')\n",
-                "from utils.data_loader import DataLoader\n",
-                "from utils.visualizations import TradingVisualizer"
-            ],
             "execution_count": None,
-            "outputs": []
-        },
-        {
-            "cell_type": "code",
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Initialize data loader\n",
                 "loader = DataLoader()\n",
@@ -110,18 +176,18 @@ def get_data_overview_cells():
                 "    print(\"JSON not found, trying database...\")\n",
                 "    df = loader.load_from_db()\n",
                 "\n",
-                "print(f\"✅ Data loaded successfully!\")\n",
+                "print(f\"\\n✅ Data loaded successfully!\")\n",
                 "print(f\"📊 Shape: {df.shape}\")\n",
                 "print(f\"📅 Date range: {df.index.min()} to {df.index.max()}\")\n",
                 "print(f\"📈 Total periods: {len(df)}\")\n",
                 "df.head(10)"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Data info\n",
                 "print(\"=\" * 60)\n",
@@ -138,43 +204,26 @@ def get_data_overview_cells():
                 "print(\"🔍 NULL VALUES\")\n",
                 "print(\"=\" * 60)\n",
                 "print(df.isnull().sum())"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Statistical summary\n",
                 "print(\"=\" * 60)\n",
                 "print(\"📈 STATISTICAL SUMMARY\")\n",
                 "print(\"=\" * 60)\n",
                 "df.describe()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
-            "metadata": {},
-            "source": [
-                "# Check for duplicates\n",
-                "duplicates = df.index.duplicated().sum()\n",
-                "print(f\"🔄 Duplicate timestamps: {duplicates}\")\n",
-                "\n",
-                "if duplicates > 0:\n",
-                "    print(\"\\n⚠️ Duplicate timestamps found:\")\n",
-                "    print(df[df.index.duplicated(keep=False)].sort_index().head())\n",
-                "    df = df[~df.index.duplicated(keep='first')]\n",
-                "    print(f\"\\n✅ Removed duplicates. New shape: {df.shape}\")"
-            ],
             "execution_count": None,
-            "outputs": []
-        },
-        {
-            "cell_type": "code",
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Data quality check\n",
                 "print(\"=\" * 60)\n",
@@ -203,9 +252,7 @@ def get_data_overview_cells():
                 "                   (df['low'] > df['open']) | \n",
                 "                   (df['low'] > df['close']))\n",
                 "    print(df[invalid_mask].head())"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         }
     ]
 
@@ -227,36 +274,12 @@ def get_statistical_analysis_cells():
                 "- Volatility and return distribution patterns"
             ]
         },
+        get_base_imports(),
         {
             "cell_type": "code",
-            "metadata": {},
-            "source": [
-                "import pandas as pd\n",
-                "import numpy as np\n",
-                "import matplotlib.pyplot as plt\n",
-                "import seaborn as sns\n",
-                "from scipy import stats\n",
-                "from pathlib import Path\n",
-                "import warnings\n",
-                "warnings.filterwarnings('ignore')\n",
-                "\n",
-                "# Set style\n",
-                "plt.style.use('seaborn-v0_8-darkgrid')\n",
-                "sns.set_palette(\"husl\")\n",
-                "%matplotlib inline\n",
-                "\n",
-                "# Import utilities\n",
-                "import sys\n",
-                "sys.path.append('..')\n",
-                "from utils.data_loader import DataLoader\n",
-                "from utils.visualizations import TradingVisualizer"
-            ],
             "execution_count": None,
-            "outputs": []
-        },
-        {
-            "cell_type": "code",
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Load data\n",
                 "loader = DataLoader()\n",
@@ -278,13 +301,13 @@ def get_statistical_analysis_cells():
                 "df['price_change_pct'] = (df['close'] - df['open']) / df['open'] * 100\n",
                 "\n",
                 "df.head()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Distribution analysis\n",
                 "fig, axes = plt.subplots(2, 2, figsize=(15, 10))\n",
@@ -302,6 +325,7 @@ def get_statistical_analysis_cells():
                 "axes[0, 1].set_ylabel('Frequency')\n",
                 "\n",
                 "# QQ plot for returns\n",
+                "from scipy import stats\n",
                 "stats.probplot(df['returns'].dropna(), dist=\"norm\", plot=axes[1, 0])\n",
                 "axes[1, 0].set_title('Q-Q Plot for Returns', fontsize=14, fontweight='bold')\n",
                 "\n",
@@ -312,13 +336,13 @@ def get_statistical_analysis_cells():
                 "\n",
                 "plt.tight_layout()\n",
                 "plt.show()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Statistical metrics\n",
                 "print(\"=\" * 60)\n",
@@ -342,13 +366,13 @@ def get_statistical_analysis_cells():
                 "        skew = data.skew()\n",
                 "        kurt = data.kurtosis()\n",
                 "        print(f\"{col:15s} | Skewness: {skew:8.4f} | Kurtosis: {kurt:8.4f}\")"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Outlier detection\n",
                 "print(\"=\" * 60)\n",
@@ -374,6 +398,7 @@ def get_statistical_analysis_cells():
                 "    print(f\"  Bounds: [{lb:.2f}, {ub:.2f}]\\n\")\n",
                 "\n",
                 "# Z-score method\n",
+                "from scipy import stats\n",
                 "returns = df['returns'].dropna()\n",
                 "z_scores = np.abs(stats.zscore(returns))\n",
                 "\n",
@@ -382,9 +407,7 @@ def get_statistical_analysis_cells():
                 "    count = outliers.sum()\n",
                 "    pct = count / len(returns) * 100\n",
                 "    print(f\"Z-Score (threshold={threshold}): {count} outliers ({pct:.2f}%)\")"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         }
     ]
 
@@ -406,35 +429,12 @@ def get_correlation_analysis_cells():
                 "- Feature correlation for model development"
             ]
         },
+        get_base_imports(),
         {
             "cell_type": "code",
-            "metadata": {},
-            "source": [
-                "import pandas as pd\n",
-                "import numpy as np\n",
-                "import matplotlib.pyplot as plt\n",
-                "import seaborn as sns\n",
-                "from pathlib import Path\n",
-                "import warnings\n",
-                "warnings.filterwarnings('ignore')\n",
-                "\n",
-                "# Set style\n",
-                "plt.style.use('seaborn-v0_8-darkgrid')\n",
-                "sns.set_palette(\"husl\")\n",
-                "%matplotlib inline\n",
-                "\n",
-                "# Import utilities\n",
-                "import sys\n",
-                "sys.path.append('..')\n",
-                "from utils.data_loader import DataLoader\n",
-                "from utils.visualizations import TradingVisualizer"
-            ],
             "execution_count": None,
-            "outputs": []
-        },
-        {
-            "cell_type": "code",
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Load data\n",
                 "loader = DataLoader()\n",
@@ -453,13 +453,13 @@ def get_correlation_analysis_cells():
                 "df['vwap'] = (df['high'] + df['low'] + df['close']) / 3\n",
                 "\n",
                 "df.head()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Correlation matrix\n",
                 "corr_cols = ['open', 'high', 'low', 'close', 'volume', 'returns', 'range', 'range_pct', 'mid', 'vwap']\n",
@@ -481,25 +481,14 @@ def get_correlation_analysis_cells():
                 "            ax=ax)\n",
                 "ax.set_title('Correlation Matrix - OHLCV Variables', fontsize=16, fontweight='bold')\n",
                 "plt.tight_layout()\n",
-                "plt.show()\n",
-                "\n",
-                "# Print correlation summary\n",
-                "print(\"\\n\" + \"=\" * 60)\n",
-                "print(\"📊 CORRELATION SUMMARY\")\n",
-                "print(\"=\" * 60)\n",
-                "print(\"\\nStrong positive correlations (>0.9):\")\n",
-                "for i in range(len(corr_matrix.columns)):\n",
-                "    for j in range(i+1, len(corr_matrix.columns)):\n",
-                "        val = corr_matrix.iloc[i, j]\n",
-                "        if val > 0.9:\n",
-                "            print(f\"  {corr_matrix.columns[i]:12s} vs {corr_matrix.columns[j]:12s}: {val:.3f}\")"
-            ],
-            "execution_count": None,
-            "outputs": []
+                "plt.show()"
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Volume vs Price relationships\n",
                 "fig, axes = plt.subplots(1, 3, figsize=(18, 5))\n",
@@ -524,13 +513,13 @@ def get_correlation_analysis_cells():
                 "\n",
                 "plt.tight_layout()\n",
                 "plt.show()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         },
         {
             "cell_type": "code",
+            "execution_count": None,
             "metadata": {},
+            "outputs": [],
             "source": [
                 "# Autocorrelation analysis\n",
                 "from statsmodels.graphics.tsaplots import plot_acf, plot_pacf\n",
@@ -555,37 +544,48 @@ def get_correlation_analysis_cells():
                 "\n",
                 "plt.tight_layout()\n",
                 "plt.show()"
-            ],
-            "execution_count": None,
-            "outputs": []
+            ]
         }
     ]
+
+def get_notebook_configs():
+    """Return all notebook configurations"""
+    return {
+        "01_eda_exploratory_data_analysis": [
+            ("01_data_overview.ipynb", get_data_overview_cells()),
+            ("02_statistical_analysis.ipynb", get_statistical_analysis_cells()),
+            ("03_correlation_analysis.ipynb", get_correlation_analysis_cells())
+        ],
+        # Add more categories here as you create them
+        # "02_data_visualization": [...],
+        # "03_feature_engineering": [...],
+        # etc.
+    }
 
 def main():
     """Main function to create all notebooks"""
     
-    # Base path
-    base_path = Path(__file__).parent / "notebooks" / "01_eda_exploratory_data_analysis"
-    base_path.mkdir(parents=True, exist_ok=True)
+    base_path = Path(__file__).parent / "notebooks"
+    notebook_configs = get_notebook_configs()
     
-    # Create notebooks
-    notebooks = [
-        ("01_data_overview.ipynb", get_data_overview_cells()),
-        ("02_statistical_analysis.ipynb", get_statistical_analysis_cells()),
-        ("03_correlation_analysis.ipynb", get_correlation_analysis_cells())
-    ]
+    print("=" * 60)
+    print("📓 CREATING OHLCV NOTEBOOKS")
+    print("=" * 60)
+    print(f"📁 Base path: {base_path}\n")
     
-    for filename, cells in notebooks:
-        filepath = base_path / filename
-        create_notebook(cells, str(filepath))
+    for category, notebooks in notebook_configs.items():
+        category_path = base_path / category
+        category_path.mkdir(parents=True, exist_ok=True)
+        print(f"\n📁 Creating category: {category}")
+        
+        for filename, cells in notebooks:
+            filepath = category_path / filename
+            create_notebook(cells, str(filepath))
     
     print("\n" + "=" * 60)
-    print("✅ All EDA notebooks created successfully!")
+    print("✅ All notebooks created successfully!")
     print(f"📁 Location: {base_path}")
     print("=" * 60)
-    print("\nCreated notebooks:")
-    for filename, _ in notebooks:
-        print(f"  📓 {filename}")
 
 if __name__ == "__main__":
     main()
