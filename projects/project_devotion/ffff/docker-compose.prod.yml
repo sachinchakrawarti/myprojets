@@ -1,0 +1,8 @@
+version: '3.8' 
+services: 
+  shraddhu-ai: 
+    build: 
+      context: ./shraddhu-ai 
+      dockerfile: Dockerfile.prod 
+    environment: 
+      - NODE_ENV=production 

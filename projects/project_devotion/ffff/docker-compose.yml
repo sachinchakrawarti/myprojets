@@ -1,0 +1,41 @@
+version: '3.8' 
+services: 
+  shraddhu-ai: 
+    build: 
+      context: ./shraddhu-ai 
+      dockerfile: Dockerfile 
+    ports: 
+      - "3000:3000" 
+      - "8000:8000" 
+    environment: 
+      - NODE_ENV=development 
+    depends_on: 
+      - db 
+      - redis 
+  shraddhuoid: 
+    build: 
+      context: ./shraddhuoid 
+      dockerfile: Dockerfile 
+    privileged: true 
+  shraddhu-cloud: 
+    build: 
+      context: ./shraddhu-cloud 
+      dockerfile: Dockerfile 
+    ports: 
+      - "8080:8080" 
+  db: 
+    image: postgres:15 
+    environment: 
+      - POSTGRES_USER=postgres 
+      - POSTGRES_PASSWORD=password 
+      - POSTGRES_DB=shraddhu 
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data 
+    ports: 
+      - "5432:5432" 
+  redis: 
+    image: redis:7-alpine 
+    ports: 
+      - "6379:6379" 
+volumes: 
+  postgres_data: 

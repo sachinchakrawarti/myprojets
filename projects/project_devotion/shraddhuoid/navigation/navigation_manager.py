@@ -1,0 +1,1 @@
+class NavigationManager: pass 

@@ -1,0 +1,15 @@
+[build-system] 
+requires = ["setuptools>=61.0", "wheel"] 
+build-backend = "setuptools.build_meta" 
+[project] 
+name = "project-devotion" 
+version = "0.1.0" 
+description = "Full-stack AI humanoid robot platform" 
+authors = [{name = "Project Devotion Team", email = "team@projectdevotion.ai"}] 
+license = {text = "Proprietary"} 
+readme = "README.md" 
+requires-python = ">=3.11" 
+classifiers = [ 
+    "Programming Language :: Python :: 3", 
+    "Topic :: Scientific/Engineering :: Artificial Intelligence", 
+] 

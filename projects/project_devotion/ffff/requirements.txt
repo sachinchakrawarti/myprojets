@@ -1,0 +1,10 @@
+# Core dependencies 
+numpy
+torch
+transformers
+fastapi
+uvicorn
+pydantic
+python-dotenv
+requests
+aiohttp

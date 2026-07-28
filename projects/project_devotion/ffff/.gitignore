@@ -1,0 +1,16 @@
+node_modules/ 
+*.log 
+.env 
+*.pyc 
+__pycache__/ 
+build/ 
+dist/ 
+*.exe 
+*.dll 
+*.so 
+*.dylib 
+.DS_Store 
+Thumbs.db 
+*.swp 
+.vscode/ 
+.idea/ 

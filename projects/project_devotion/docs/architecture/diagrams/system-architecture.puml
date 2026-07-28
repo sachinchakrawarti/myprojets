@@ -1,0 +1,12 @@
+@startuml 
+title System Architecture 
+component "Web Client" as Web 
+component "Mobile Client" as Mobile 
+component "AI Server" as AI 
+component "Robot" as Robot 
+component "Cloud" as Cloud 
+Web --> AI 
+Mobile --> AI 
+AI --> Robot 
+AI --> Cloud 
+@enduml 

@@ -1,0 +1,12 @@
+* text=auto 
+*.c text diff=cpp 
+*.cpp text diff=cpp 
+*.h text diff=cpp 
+*.py text diff=python 
+*.go text diff=go 
+*.js text diff=javascript 
+*.ts text diff=typescript 
+*.json text 
+*.yaml text 
+*.yml text 
+*.md text 

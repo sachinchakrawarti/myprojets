@@ -1,0 +1,1 @@
+class GaitGenerator: pass 

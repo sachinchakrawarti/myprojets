@@ -1,0 +1,1 @@
+CREATE TABLE sessions (id SERIAL PRIMARY KEY, token TEXT); 
