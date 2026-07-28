@@ -1,0 +1,13 @@
+pandas
+numpy
+sqlite3
+matplotlib
+seaborn
+scikit-learn
+xgboost
+lightgbm
+python-binance
+schedule
+plotly
+ta
+joblib
