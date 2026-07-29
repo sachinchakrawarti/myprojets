@@ -1,0 +1,24 @@
+sqlite3 storage\database\ETH.db < schema\0004_open_interest.sql
+
+python -m scripts.open_interest.collect_open_interest
+
+
+sqlite3 storage\database\ETH.db < schema\0005_funding_rate.sql
+
+
+
+
+sqlite3 storage\database\ETH.db < schema\0006_trades.sql
+
+
+python -m scripts.trades.collect_trades
+
+
+sqlite3 storage\database\ETH.db < schema\0007_option_chain.sql
+
+python -m scripts.option_chain.collect_option_chain
+
+
+
+
+sqlite3 storage\database\ETH.db < schema\0008_greeks.sql
