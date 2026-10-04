@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cache Memory Cleaner</title>
+<HTA:APPLICATION
+    ID="CacheCleaner"
+    APPLICATIONNAME="CacheCleaner"
+    BORDER="thin"
+    CAPTION="yes"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    SYSMENU="yes"
+    SCROLL="no"
+    WINDOWSTATE="normal"
+    MAXIMIZEBUTTON="no"
+    MINIMIZEBUTTON="yes"
+    ICON="shell32.dll,77"
+/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0a0a14;
+    color: #eaeaea;
+    user-select: text;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(0,217,255,0.15), transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(255,0,200,0.10), transparent 50%),
+      linear-gradient(135deg, #0a0a14 0%, #141428 100%);
+  }
+
+  /* HEADER */
+  .header {
+    flex: 0 0 auto;
+    padding: 14px 22px 10px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,217,255,0.15);
+  }
+  .header-left h1 {
+    color: #00d9ff;
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(0,217,255,0.6);
+  }
+  .header-left h1 .icon { font-size: 24px; margin-right: 6px; }
+  .header-left .sub {
+    font-size: 10.5px;
+    color: #7a8ca0;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .admin-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+  }
+  .admin-badge.ok {
+    background: rgba(0,255,136,0.12);
+    color: #00ff88;
+    border: 1px solid rgba(0,255,136,0.4);
+  }
+  .admin-badge.no {
+    background: rgba(255,107,107,0.12);
+    color: #ff6b6b;
+    border: 1px solid rgba(255,107,107,0.4);
+  }
+  .admin-badge.checking {
+    background: rgba(0,217,255,0.12);
+    color: #00d9ff;
+    border: 1px solid rgba(0,217,255,0.4);
+  }
+
+  /* MAIN — fixed height so buttons stay visible */
+  .main {
+    flex: 1 1 auto;
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* LEFT PANEL */
+  .left {
+    flex: 0 0 280px;
+    background: rgba(15,18,35,0.7);
+    border: 1px solid rgba(0,217,255,0.2);
+    border-radius: 14px;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  .left .hdr {
+    font-size: 11px;
+    color: #00d9ff;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    padding: 6px 8px 8px 8px;
+    border-bottom: 1px solid rgba(0,217,255,0.2);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .left .hdr .sel-all {
+    font-size: 10px;
+    color: #7a8ca0;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .left .hdr .sel-all:hover {
+    background: rgba(0,217,255,0.15);
+    color: #00d9ff;
+  }
+  .item {
+    display: block;
+    padding: 7px 9px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #c8d4e0;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+  .item:hover {
+    background: rgba(0,217,255,0.08);
+    border-color: rgba(0,217,255,0.25);
+    color: #fff;
+  }
+  .item input {
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  /* RIGHT PANEL */
+  .right {
+    flex: 1 1 auto;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(0,217,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .console-hdr {
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    background: rgba(0,217,255,0.06);
+    border-bottom: 1px solid rgba(0,217,255,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10.5px;
+    color: #00d9ff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .console-hdr .dots { display: flex; gap: 5px; }
+  .console-hdr .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+
+  .console {
+    flex: 1 1 auto;
+    padding: 12px 16px;
+    overflow-y: auto;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #a8ffd0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    user-select: text;
+    cursor: text;
+  }
+  .console::-webkit-scrollbar { width: 8px; }
+  .console::-webkit-scrollbar-track { background: #0a0a14; }
+  .console::-webkit-scrollbar-thumb { background: #00d9ff44; border-radius: 4px; }
+  .console .err  { color: #ff6b6b; font-weight: 600; }
+  .console .warn { color: #ffbd2e; }
+  .console .info { color: #00d9ff; font-weight: 600; }
+  .console .ok   { color: #00ff88; }
+  .console .dim  { color: #6a7a8a; }
+  .console .hdr-line {
+    color: #00d9ff;
+    border-bottom: 1px dashed rgba(0,217,255,0.3);
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* PROGRESS */
+  .bar {
+    flex: 0 0 auto;
+    height: 8px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 4px;
+    margin: 0 18px;
+    overflow: hidden;
+    border: 1px solid rgba(0,217,255,0.15);
+  }
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00d9ff, #00ff88, #00d9ff);
+    background-size: 200% 100%;
+    animation: flow 2s linear infinite;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  @keyframes flow {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* BUTTONS — always visible at bottom */
+  .btnrow {
+    flex: 0 0 auto;
+    margin: 10px 18px 16px 18px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .b-blue   { background: linear-gradient(135deg, #0090e0, #00d9ff); }
+  .b-green  { background: linear-gradient(135deg, #00a050, #00ff88); }
+  .b-yellow { background: linear-gradient(135deg, #c08000, #ffbd2e); }
+  .b-red    { background: linear-gradient(135deg, #c03030, #ff6b6b); }
+  .b-purple { background: linear-gradient(135deg, #7030c0, #b06bff); }
+  .b-gray   { background: linear-gradient(135deg, #3a3a4a, #5a5a6a); }
+</style>
+
+<script language="JavaScript">
+  // ============ GLOBALS ============
+  var shell = null, fso = null, isAdmin = false;
+  try {
+    shell = new ActiveXObject("WScript.Shell");
+    fso   = new ActiveXObject("Scripting.FileSystemObject");
+  } catch (e) {
+    alert("CRITICAL: Cannot create ActiveX.\n" + e.message);
+  }
+
+  // ============ SAFE HELPERS (no ES5-only methods) ============
+  function safeTrim(s) {
+    if (s === null || s === undefined) return "";
+    s = "" + s;
+    var i = 0, j = s.length - 1;
+    while (i <= j && (s.charAt(i) === ' ' || s.charAt(i) === '\t' || s.charAt(i) === '\r' || s.charAt(i) === '\n')) i++;
+    while (j >= i && (s.charAt(j) === ' ' || s.charAt(j) === '\t' || s.charAt(j) === '\r' || s.charAt(j) === '\n')) j--;
+    if (i > j) return "";
+    return s.substring(i, j + 1);
+  }
+
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return "";
+    s = "" + s;
+    s = s.replace(/&/g, "&amp;");
+    s = s.replace(/</g, "&lt;");
+    s = s.replace(/>/g, "&gt;");
+    return s;
+  }
+
+  function safeSplit(str, sep) {
+    if (str === null || str === undefined) return [];
+    str = "" + str;
+    if (str.length === 0) return [];
+    return str.split(sep);
+  }
+
+  // ============ LOGGING ============
+  function out(msg, cls) {
+    var o = document.getElementById('output');
+    var line = cls ? '<span class="' + cls + '">' + escapeHtml(msg) + '</span>' : escapeHtml(msg);
+    o.innerHTML += line + '\n';
+    o.scrollTop = o.scrollHeight;
+  }
+
+  function outDivider() {
+    var o = document.getElementById('output');
+    var s = "";
+    for (var i = 0; i < 58; i++) s += '\u2500';
+    o.innerHTML += '<span class="hdr-line">' + s + '</span>\n';
+    o.scrollTop = o.scrollHeight;
+  }
+
+  function clearOut() {
+    document.getElementById('output').innerHTML = '';
+  }
+
+  function setProgress(p) {
+    document.getElementById('barFill').style.width = Math.max(0, Math.min(100, p)) + '%';
+  }
+
+  // ============ ERROR POPUP ============
+  function showError(title, msg) {
+    try {
+      var eWin = window.open("", "_blank", "width=620,height=420,scrollbars=yes");
+      if (!eWin) { alert(title + "\n\n" + msg); return; }
+      var html = '<html><head><title>' + escapeHtml(title) + '</title>' +
+        '<style>' +
+        'body{font-family:Consolas,monospace;background:#1a1a2e;color:#ff6b6b;padding:20px;font-size:12px;}' +
+        'h2{color:#00d9ff;margin-bottom:10px;}' +
+        'pre{background:#000;padding:15px;border-radius:8px;border:1px solid #ff6b6b55;' +
+        'white-space:pre-wrap;word-wrap:break-word;user-select:text;overflow:auto;max-height:250px;}' +
+        '.btn{margin-top:12px;padding:9px 16px;background:#0080d0;border:none;color:#fff;' +
+        'border-radius:6px;cursor:pointer;font-weight:700;margin-right:8px;}' +
+        '</style></head><body>' +
+        '<h2>\u26A0 ' + escapeHtml(title) + '</h2>' +
+        '<pre id="msg">' + escapeHtml(msg) + '</pre>' +
+        '<button class="btn" onclick="copyErr()">\uD83D\uDCCB Copy Error</button>' +
+        '<button class="btn" onclick="window.close()">Close</button>' +
+        '<script type="text/javascript">' +
+        'function copyErr(){' +
+        '  var t = document.getElementById("msg").innerText;' +
+        '  window.clipboardData.setData("Text", t);' +
+        '  alert("Copied!");' +
+        '}' +
+        '<\/script>' +
+        '</body></html>';
+      eWin.document.write(html);
+      eWin.document.close();
+    } catch (e) {
+      alert(title + "\n\n" + msg);
+    }
+  }
+
+  // ============ COPY LOG ============
+  function copyLog() {
+    try {
+      var el = document.getElementById('output');
+      var txt = el.innerText || el.textContent || "";
+      if (!txt || txt.length < 3) { alert("Log is empty."); return; }
+      window.clipboardData.setData("Text", txt);
+      var b = document.getElementById('btnCopy');
+      var orig = b.innerHTML;
+      b.innerHTML = '\u2714 COPIED!';
+      setTimeout(function() { b.innerHTML = orig; }, 1500);
+    } catch (e) {
+      showError("Copy Failed", e.message);
+    }
+  }
+
+  // ============ ADMIN CHECK ============
+  function checkAdmin() {
+    var lbl = document.getElementById('adminLbl');
+    lbl.className = 'admin-badge checking';
+    lbl.innerHTML = '\u23F3 Checking...';
+    var r = psExec(
+      "$a = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator); if ($a) { 'ADMIN' } else { 'USER' }"
+    );
+    if (r.error) {
+      lbl.className = 'admin-badge no';
+      lbl.innerHTML = '\u26A0 Cannot check admin';
+      return;
+    }
+    isAdmin = (r.stdout.indexOf('ADMIN') > -1);
+    if (isAdmin) {
+      lbl.className = 'admin-badge ok';
+      lbl.innerHTML = '\u2714 ADMINISTRATOR';
+    } else {
+      lbl.className = 'admin-badge no';
+      lbl.innerHTML = '\u26A0 USER MODE';
+    }
+  }
+
+  // ============ POWERSHELL EXEC (FIXED — no .trim()) ============
+  function psExec(script) {
+    var tmp = "";
+    try {
+      tmp = shell.ExpandEnvironmentStrings("%TEMP%") + "\\_cc_" + Math.random().toString(36).substr(2,8) + ".ps1";
+      var f = fso.CreateTextFile(tmp, true);
+      f.Write(script);
+      f.Close();
+
+      var stdout = "", stderr = "";
+      var ex = shell.Exec('powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File "' + tmp + '"');
+      while (ex.Status === 0) {
+        if (!ex.StdOut.AtEndOfStream) stdout += ex.StdOut.ReadLine() + "\n";
+        if (!ex.StdErr.AtEndOfStream) stderr += ex.StdErr.ReadLine() + "\n";
+        sleep(15);
+      }
+      while (!ex.StdOut.AtEndOfStream) stdout += ex.StdOut.ReadLine() + "\n";
+      while (!ex.StdErr.AtEndOfStream) stderr += ex.StdErr.ReadLine() + "\n";
+
+      try { fso.DeleteFile(tmp, true); } catch(e) {}
+
+      return { stdout: stdout, stderr: stderr, error: safeTrim(stderr) };
+    } catch (e) {
+      return { stdout: "", stderr: "", error: "psExec failed: " + e.message };
+    }
+  }
+
+  function sleep(ms) {
+    var t = new Date().getTime();
+    while (new Date().getTime() - t < ms) {}
+  }
+
+  // ============ SIZE ============
+  function fmtSize(bytes) {
+    bytes = Number(bytes) || 0;
+    if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + ' GB';
+    if (bytes >= 1048576)    return (bytes / 1048576).toFixed(2) + ' MB';
+    if (bytes >= 1024)       return (bytes / 1024).toFixed(2) + ' KB';
+    return bytes + ' B';
+  }
+
+  function parsePS(text, key) {
+    var idx = text.indexOf(key);
+    if (idx === -1) return 0;
+    var rest = text.substring(idx + key.length);
+    var nl = rest.indexOf('\n');
+    var val = (nl > -1 ? rest.substring(0, nl) : rest);
+    val = safeTrim(val);
+    return parseInt(val, 10) || 0;
+  }
+
+  // ============ GENERIC RUNNER ============
+  function runPS(label, script, keys) {
+    out('> ' + label + '...', 'info');
+    var r = psExec(script);
+    if (r.error) {
+      var firstLine = safeSplit(r.error, "\n")[0];
+      out('  \u26A0 ERROR: ' + firstLine, 'err');
+      return { freed: 0, count: 0, error: r.error };
+    }
+    var lines = safeSplit(r.stdout, "\n");
+    for (var i = 0; i < lines.length; i++) {
+      var L = safeTrim(lines[i]);
+      if (!L) continue;
+      if (L.indexOf('FREED=') === 0 || L.indexOf('DELETED=') === 0) continue;
+      out('    ' + L, 'dim');
+    }
+    var freed = keys.indexOf('FREED') > -1 ? parsePS(r.stdout, 'FREED=') : 0;
+    var count = keys.indexOf('DELETED') > -1 ? parsePS(r.stdout, 'DELETED=') : 0;
+    var parts = [];
+    if (keys.indexOf('DELETED') > -1) parts.push(count + ' items');
+    if (keys.indexOf('FREED') > -1)   parts.push('freed ' + fmtSize(freed));
+    out('  \u2714 ' + label + ' \u2014 ' + (parts.join(', ') || 'done'), 'ok');
+    return { freed: freed, count: count, error: "" };
+  }
+
+  // ============ CLEAN ACTIONS ============
+  function cleanUserTemp() {
+    var tmp = shell.ExpandEnvironmentStrings("%TEMP%").replace(/\\/g,'\\\\');
+    var lp  = (shell.ExpandEnvironmentStrings("%LOCALAPPDATA%") + "\\Temp").replace(/\\/g,'\\\\');
+    return runPS('User Temp',
+      "$paths=@('" + tmp + "','" + lp + "');$t=0;$c=0;\n" +
+      "foreach($p in $paths){\n" +
+      "  if(Test-Path $p){\n" +
+      "    $b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "    Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|ForEach-Object{try{Remove-Item $_.FullName -Recurse -Force -EA SilentlyContinue;$c++}catch{}}\n" +
+      "    $a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "    $t+=($b-$a)\n" +
+      "  }\n" +
+      "}\n" +
+      "Write-Host ('FREED='+$t);Write-Host ('DELETED='+$c)",
+      ['FREED','DELETED']);
+  }
+
+  function cleanWindowsTemp() {
+    if (!isAdmin) { out('  \u26A0 Windows Temp \u2014 skipped (needs Admin)', 'warn'); return {freed:0,count:0,error:""}; }
+    return runPS('Windows Temp',
+      "$p='C:\\Windows\\Temp';\n" +
+      "$b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "$c=0;\n" +
+      "Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|ForEach-Object{try{Remove-Item $_.FullName -Recurse -Force -EA SilentlyContinue;$c++}catch{}}\n" +
+      "$a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "Write-Host ('FREED='+($b-$a));Write-Host ('DELETED='+$c)",
+      ['FREED','DELETED']);
+  }
+
+  function cleanPrefetch() {
+    if (!isAdmin) { out('  \u26A0 Prefetch \u2014 skipped (needs Admin)', 'warn'); return {freed:0,count:0,error:""}; }
+    return runPS('Prefetch',
+      "$c=0;\n" +
+      "Get-ChildItem 'C:\\Windows\\Prefetch' -Filter '*.pf' -Force -EA SilentlyContinue|ForEach-Object{try{Remove-Item $_.FullName -Force -EA SilentlyContinue;$c++}catch{}}\n" +
+      "Write-Host ('DELETED='+$c)",
+      ['DELETED']);
+  }
+
+  function flushDNS() {
+    out('> Flushing DNS...', 'info');
+    var r = psExec("ipconfig /flushdns | Out-Null; Write-Host 'OK'");
+    if (r.error) { out('  \u26A0 ' + safeSplit(r.error, "\n")[0], 'err'); return {freed:0,count:0,error:r.error}; }
+    out('  \u2714 DNS cache flushed', 'ok');
+    return {freed:0,count:0,error:""};
+  }
+
+  function cleanThumbs() {
+    var lp = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%").replace(/\\/g,'\\\\');
+    return runPS('Thumbnails',
+      "$p='" + lp + "\\Microsoft\\Windows\\Explorer';\n" +
+      "$b=(Get-ChildItem $p -Filter 'thumbcache_*.db' -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "Get-ChildItem $p -Filter 'thumbcache_*.db' -Force -EA SilentlyContinue|Remove-Item -Force -EA SilentlyContinue\n" +
+      "$a=(Get-ChildItem $p -Filter 'thumbcache_*.db' -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "Write-Host ('FREED='+($b-$a))",
+      ['FREED']);
+  }
+
+  function cleanWindowsUpdate() {
+    if (!isAdmin) { out('  \u26A0 Windows Update cache \u2014 skipped (needs Admin)', 'warn'); return {freed:0,count:0,error:""}; }
+    return runPS('Windows Update Cache',
+      "Stop-Service wuauserv -Force -EA SilentlyContinue;Stop-Service bits -Force -EA SilentlyContinue;Start-Sleep -Milliseconds 800;\n" +
+      "$p='C:\\Windows\\SoftwareDistribution\\Download';\n" +
+      "$b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Remove-Item -Recurse -Force -EA SilentlyContinue\n" +
+      "$a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "Start-Service bits -EA SilentlyContinue;Start-Service wuauserv -EA SilentlyContinue;\n" +
+      "Write-Host ('FREED='+($b-$a))",
+      ['FREED']);
+  }
+
+  function cleanDeliveryOpt() {
+    if (!isAdmin) { out('  \u26A0 Delivery Optimization \u2014 skipped (needs Admin)', 'warn'); return {freed:0,count:0,error:""}; }
+    return runPS('Delivery Optimization',
+      "$p='C:\\Windows\\SoftwareDistribution\\DeliveryOptimization';\n" +
+      "$b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Remove-Item -Recurse -Force -EA SilentlyContinue\n" +
+      "$a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "Write-Host ('FREED='+($b-$a))",
+      ['FREED']);
+  }
+
+  function cleanRecycleBin() {
+    out('> Recycle Bin...', 'info');
+    var r = psExec("Clear-RecycleBin -Force -EA SilentlyContinue; Write-Host 'OK'");
+    if (r.error) { out('  \u26A0 ' + safeSplit(r.error, "\n")[0], 'err'); return {freed:0,count:0,error:r.error}; }
+    out('  \u2714 Recycle Bin emptied', 'ok');
+    return {freed:0,count:0,error:""};
+  }
+
+  function cleanBrowser(name, subdirs) {
+    var lp = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%").replace(/\\/g,'\\\\');
+    var arr = [];
+    for (var i = 0; i < subdirs.length; i++) {
+      arr.push("'" + lp + subdirs[i].replace(/\\/g,'\\\\') + "'");
+    }
+    return runPS(name,
+      "$paths=@(" + arr.join(',') + ");$t=0;\n" +
+      "foreach($p in $paths){\n" +
+      "  if(Test-Path $p){\n" +
+      "    $b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "    Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Remove-Item -Recurse -Force -EA SilentlyContinue\n" +
+      "    $a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "    $t+=($b-$a)\n" +
+      "  }\n" +
+      "}\n" +
+      "Write-Host ('FREED='+$t)",
+      ['FREED']);
+  }
+
+  function cleanChrome() { return cleanBrowser('Chrome', ['\\Google\\Chrome\\User Data\\Default\\Cache','\\Google\\Chrome\\User Data\\Default\\Code Cache','\\Google\\Chrome\\User Data\\Default\\GPUCache']); }
+  function cleanEdge()   { return cleanBrowser('Edge',   ['\\Microsoft\\Edge\\User Data\\Default\\Cache','\\Microsoft\\Edge\\User Data\\Default\\Code Cache']); }
+
+  function cleanFirefox() {
+    var lp = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%").replace(/\\/g,'\\\\');
+    return runPS('Firefox',
+      "$root='" + lp + "\\Mozilla\\Firefox\\Profiles';$t=0;\n" +
+      "if(Test-Path $root){\n" +
+      "  Get-ChildItem $root -Directory|ForEach-Object{\n" +
+      "    $p=Join-Path $_.FullName 'cache2';\n" +
+      "    if(Test-Path $p){\n" +
+      "      $b=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $b){$b=0}\n" +
+      "      Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Remove-Item -Recurse -Force -EA SilentlyContinue\n" +
+      "      $a=(Get-ChildItem $p -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $a){$a=0}\n" +
+      "      $t+=($b-$a)\n" +
+      "    }\n" +
+      "  }\n" +
+      "}\n" +
+      "Write-Host ('FREED='+$t)",
+      ['FREED']);
+  }
+
+  function cleanRecent() {
+    var ap = shell.ExpandEnvironmentStrings("%APPDATA%").replace(/\\/g,'\\\\');
+    return runPS('Recent Files',
+      "$paths=@('" + ap + "\\Microsoft\\Windows\\Recent','" + ap + "\\Microsoft\\Windows\\Recent\\AutomaticDestinations','" + ap + "\\Microsoft\\Windows\\Recent\\CustomDestinations');$c=0;\n" +
+      "foreach($p in $paths){if(Test-Path $p){Get-ChildItem $p -Force -EA SilentlyContinue|Remove-Item -Force -Recurse -EA SilentlyContinue;$c++}}\n" +
+      "Write-Host ('DELETED='+$c)",
+      ['DELETED']);
+  }
+
+  function cleanClipboard() {
+    out('> Clipboard...', 'info');
+    psExec("Set-Clipboard -Value $null -EA SilentlyContinue; Write-Host 'OK'");
+    out('  \u2714 Clipboard cleared', 'ok');
+    return {freed:0,count:0,error:""};
+  }
+
+  function cleanStandbyMemory() {
+    if (!isAdmin) { out('  \u26A0 Standby memory \u2014 skipped (needs Admin)', 'warn'); return {freed:0,count:0,error:""}; }
+    out('> Standby memory...', 'info');
+    psExec("rundll32.exe advapi32.dll,ProcessIdleTasks; Write-Host 'OK'");
+    out('  \u2714 Standby list cleared', 'ok');
+    return {freed:0,count:0,error:""};
+  }
+
+  // ============ MAIN ============
+  var busy = false;
+  var actions = {
+    usertemp:  cleanUserTemp,
+    wintemp:   cleanWindowsTemp,
+    prefetch:  cleanPrefetch,
+    dns:       flushDNS,
+    thumbs:    cleanThumbs,
+    winupdate: cleanWindowsUpdate,
+    delivery:  cleanDeliveryOpt,
+    recycle:   cleanRecycleBin,
+    chrome:    cleanChrome,
+    edge:      cleanEdge,
+    firefox:   cleanFirefox,
+    recent:    cleanRecent,
+    clip:      cleanClipboard,
+    standby:   cleanStandbyMemory
+  };
+
+  function runClean(mode) {
+    if (busy) return;
+    busy = true;
+    disableButtons(true);
+
+    clearOut();
+    outDivider();
+    out('       CACHE MEMORY CLEANER \u2014 STARTED', 'info');
+    outDivider();
+    out('Time: ' + new Date().toString(), 'dim');
+    out('Mode: ' + (mode === 'all' ? 'CLEAN ALL' : 'CLEAN SELECTED'), 'dim');
+    out('');
+
+    var list = [];
+    if (mode === 'all') {
+      for (var k in actions) list.push(k);
+    } else {
+      var checked = document.getElementsByName('cache');
+      for (var i = 0; i < checked.length; i++) {
+        if (checked[i].checked) list.push(checked[i].value);
+      }
+      if (list.length === 0) {
+        alert('Select at least one item.');
+        busy = false; disableButtons(false);
+        return;
+      }
+    }
+
+    var totalFreed = 0, totalErrors = 0;
+
+    for (var j = 0; j < list.length; j++) {
+      setProgress(((j + 1) / list.length) * 100);
+      var fn = actions[list[j]];
+      if (fn) {
+        try {
+          var res = fn() || {};
+          totalFreed += res.freed || 0;
+          if (res.error) totalErrors++;
+        } catch (e) {
+          out('  \u2716 EXCEPTION in ' + list[j] + ': ' + e.message, 'err');
+          totalErrors++;
+        }
+      }
+      out('');
+    }
+
+    setProgress(100);
+    outDivider();
+    out('  \u2714 DONE \u2014 Total freed: ' + fmtSize(totalFreed), 'ok');
+    if (totalErrors > 0) out('  \u26A0 Errors encountered: ' + totalErrors, 'warn');
+    outDivider();
+    out('');
+    out('Tip: click "COPY LOG" to copy everything above.', 'dim');
+
+    busy = false;
+    disableButtons(false);
+  }
+
+  function runAnalyze() {
+    if (busy) return;
+    busy = true;
+    disableButtons(true);
+    clearOut();
+    outDivider();
+    out('       CACHE SIZE ANALYSIS', 'info');
+    outDivider();
+    out('');
+
+    var tp = shell.ExpandEnvironmentStrings("%TEMP%").replace(/\\/g,'\\\\');
+    var lp = shell.ExpandEnvironmentStrings("%LOCALAPPDATA%").replace(/\\/g,'\\\\');
+    var ap = shell.ExpandEnvironmentStrings("%APPDATA%").replace(/\\/g,'\\\\');
+
+    var r = psExec(
+      "$targets=@(\n" +
+      "  @{N='User Temp';         P='" + tp + "'},\n" +
+      "  @{N='LocalAppData Temp'; P='" + lp + "\\Temp'},\n" +
+      "  @{N='Windows Temp';      P='C:\\Windows\\Temp'},\n" +
+      "  @{N='Prefetch';          P='C:\\Windows\\Prefetch'},\n" +
+      "  @{N='WU Download';       P='C:\\Windows\\SoftwareDistribution\\Download'},\n" +
+      "  @{N='Thumbnails';        P='" + lp + "\\Microsoft\\Windows\\Explorer'},\n" +
+      "  @{N='Chrome Cache';      P='" + lp + "\\Google\\Chrome\\User Data\\Default\\Cache'},\n" +
+      "  @{N='Edge Cache';        P='" + lp + "\\Microsoft\\Edge\\User Data\\Default\\Cache'},\n" +
+      "  @{N='Recent Files';      P='" + ap + "\\Microsoft\\Windows\\Recent'}\n" +
+      ");\n" +
+      "foreach($t in $targets){\n" +
+      "  $s=0;\n" +
+      "  if(Test-Path $t.P){$s=(Get-ChildItem $t.P -Recurse -Force -EA SilentlyContinue|Measure-Object Length -Sum).Sum;if(-not $s){$s=0}}\n" +
+      "  Write-Host ($t.N+'|'+$s)\n" +
+      "}"
+    );
+
+    if (r.error) {
+      out('\u26A0 Analyze error: ' + safeSplit(r.error, "\n")[0], 'err');
+      busy = false; disableButtons(false);
+      return;
+    }
+
+    var total = 0;
+    var lines = safeSplit(r.stdout, "\n");
+    for (var i = 0; i < lines.length; i++) {
+      var L = safeTrim(lines[i]);
+      if (L.indexOf('|') === -1) continue;
+      var p = L.split('|');
+      var n = p[0]; var s = parseInt(p[1], 10) || 0;
+      total += s;
+      var pad = n; while (pad.length < 22) pad += ' ';
+      out('  ' + pad + ' : ' + fmtSize(s), s > 0 ? null : 'dim');
+    }
+    out('');
+    out('  TOTAL CACHE SIZE       : ' + fmtSize(total), 'warn');
+    out('');
+
+    busy = false;
+    disableButtons(false);
+  }
+
+  function disableButtons(dis) {
+    var ids = ['btnAll','btnSel','btnAnalyze','btnCopy'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) el.disabled = dis;
+    }
+  }
+
+  function toggleAll() {
+    var items = document.getElementsByName('cache');
+    var allChecked = true;
+    for (var i = 0; i < items.length; i++) if (!items[i].checked) { allChecked = false; break; }
+    for (var j = 0; j < items.length; j++) items[j].checked = !allChecked;
+  }
+
+  // ============ INIT ============
+  function init() {
+    if (!shell || !fso) {
+      document.body.innerHTML = '<div style="padding:40px;color:#ff6b6b;font-size:16px;">' +
+        '<h2>CRITICAL ERROR</h2>' +
+        '<p>Cannot initialize ActiveX components.</p>' +
+        '<p>Make sure file ends in <b>.hta</b> and is opened with <b>mshta.exe</b>.</p>' +
+        '</div>';
+      return;
+    }
+    try {
+      checkAdmin();
+      out('Cache Memory Cleaner ready.', 'info');
+      out('Select caches on the left, then click CLEAN SELECTED or CLEAN ALL.', null);
+      out('Right-click or use COPY LOG to copy the output.', 'dim');
+      out('Tip: run as Administrator for full cleaning.', 'warn');
+      out('');
+    } catch (e) {
+      showError("Init Error", e.message);
+    }
+  }
+</script>
+</head>
+<body onload="init();">
+
+<div class="header">
+  <div class="header-left">
+    <h1><span class="icon">&#129529;</span>Cache Memory Cleaner</h1>
+    <div class="sub">Clean temp, prefetch, DNS, thumbnails, browsers &amp; more</div>
+  </div>
+  <div id="adminLbl" class="admin-badge checking">&#9203; Checking...</div>
+</div>
+
+<div class="main">
+  <div class="left">
+    <div class="hdr">
+      <span>Cache Targets</span>
+      <span class="sel-all" onclick="toggleAll()">Toggle All</span>
+    </div>
+
+    <label class="item"><input type="checkbox" name="cache" value="usertemp" checked> User Temp (%TEMP%)</label>
+    <label class="item"><input type="checkbox" name="cache" value="wintemp" checked> Windows Temp Folder</label>
+    <label class="item"><input type="checkbox" name="cache" value="prefetch" checked> Prefetch Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="dns" checked> DNS Resolver Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="thumbs" checked> Thumbnail Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="winupdate" checked> Windows Update Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="delivery" checked> Delivery Optimization</label>
+    <label class="item"><input type="checkbox" name="cache" value="recycle"> Recycle Bin</label>
+    <label class="item"><input type="checkbox" name="cache" value="chrome" checked> Chrome Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="edge" checked> Edge Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="firefox" checked> Firefox Cache</label>
+    <label class="item"><input type="checkbox" name="cache" value="recent"> Explorer Recent Files</label>
+    <label class="item"><input type="checkbox" name="cache" value="clip" checked> Clipboard</label>
+    <label class="item"><input type="checkbox" name="cache" value="standby" checked> Standby Memory (RAM)</label>
+  </div>
+
+  <div class="right">
+    <div class="console-hdr">
+      <div class="dots">
+        <div class="dot r"></div>
+        <div class="dot y"></div>
+        <div class="dot g"></div>
+      </div>
+      <span>CONSOLE OUTPUT</span>
+    </div>
+    <div class="console" id="output"></div>
+  </div>
+</div>
+
+<div class="bar"><div class="bar-fill" id="barFill"></div></div>
+
+<div class="btnrow">
+  <button id="btnAll"     class="b-blue"   onclick="runClean('all')">CLEAN ALL</button>
+  <button id="btnSel"     class="b-green"  onclick="runClean('selected')">CLEAN SELECTED</button>
+  <button id="btnAnalyze" class="b-yellow" onclick="runAnalyze()">ANALYZE</button>
+  <button id="btnCopy"    class="b-purple" onclick="copyLog()">COPY LOG</button>
+  <button                 class="b-red"    onclick="clearOut(); setProgress(0);">Clear</button>
+  <button                 class="b-gray"   onclick="window.close()">Exit</button>
+</div>
+
+</body>
+</html>

@@ -7,10 +7,14 @@ module.exports = {
     ASSETS_PATH: path.join(__dirname, 'assets'),
 
     // Base name for renamed files
-    BASE_NAME: 'anjali_negi',
+   
+BASE_NAME: 'deeksha_gulati_',
 
     // Supported image formats
     IMAGE_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'],
+
+    // Supported video formats
+    VIDEO_EXTENSIONS: ['.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.webm', '.m4v', '.mpg', '.mpeg', '.3gp', '.ogv'],
 
     // Number padding (6 = 000001, 4 = 0001, etc.)
     PADDING: 6,

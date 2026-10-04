@@ -1,140 +1,149 @@
-// rename.js - Main script
+// renameAll.js - Rename both images and videos (unified script)
 
-const logger = require('./logger');
 const config = require('./config');
 const fileUtils = require('./fileUtils');
+const logger = require('./logger');
 
 function main() {
-    logger.header('🖼️  Renamify - Image Renamer');
-    logger.info(`📁 Assets folder: ${config.ASSETS_PATH}`);
-    logger.info(`📝 Base name: ${config.BASE_NAME}`);
+    logger.header('🎬🖼️  Media File Renamer (Images + Videos)');
     
-    if (config.DRY_RUN) {
-        logger.warning('🔍 DRY RUN MODE - No files will be renamed');
-    }
-    logger.separator();
-
     // Get all files
     const allFiles = fileUtils.getAllFiles();
+    logger.info(`Found ${allFiles.length} total files in assets folder`);
     
-    if (allFiles.length === 0) {
-        logger.warning('Assets folder is empty!');
-        logger.info(`   Place images in: ${config.ASSETS_PATH}`);
-        return;
-    }
-
     // Separate files
-    const { named, unnamed, nonImages } = fileUtils.separateFiles(allFiles);
+    const { 
+        unnamedImages,
+        unnamedVideos,
+        namedImages,
+        namedVideos,
+        nonMedia 
+    } = fileUtils.separateFiles(allFiles);
     
-    logger.info(`📊 Found ${allFiles.length} files in assets folder`);
-    logger.dim(`   ✅ Already named: ${named.length}`);
-    logger.dim(`   📝 To rename:     ${unnamed.length}`);
-    logger.dim(`   📄 Non-images:    ${nonImages.length}`);
+    logger.printMediaType('image', unnamedImages.length);
+    logger.printMediaType('video', unnamedVideos.length);
     
-    if (nonImages.length > 0 && config.VERBOSE) {
-        logger.dim(`   ⚠️  Skipped files: ${nonImages.join(', ')}`);
+    if (nonMedia.length > 0) {
+        logger.dim(`   📄 Non-media files: ${nonMedia.length} (ignored)`);
     }
-    logger.separator();
-
-    if (unnamed.length === 0) {
-        logger.success('🎉 All images are already properly named!');
-        logger.info(`   Next number would be: ${fileUtils.generateNewName(named.length + 1, '.jpg')}`);
-        return;
-    }
-
-    // Find highest number
-    const highestNumber = fileUtils.findHighestNumber(allFiles);
-    const startNumber = highestNumber + 1;
     
-    logger.highlight(`🚀 Starting from: ${fileUtils.generateNewName(startNumber, '.jpg')}`);
-    logger.dim(`   (Highest used: ${highestNumber})`);
     logger.separator();
-
-    // Show existing named files (sample)
-    if (named.length > 0) {
-        logger.info(`📋 Existing files (showing up to 5):`);
-        named.slice(0, 5).forEach(file => {
-            logger.success(`   ${file}`);
-        });
-        if (named.length > 5) {
-            logger.dim(`   ... and ${named.length - 5} more`);
-        }
-        logger.separator();
-    }
-
-    // Rename files
-    let renamedCount = 0;
-    let skippedCount = 0;
-    let currentNumber = startNumber;
-
-    logger.info(`📝 Renaming ${unnamed.length} files...`);
-    logger.separator();
-
-    unnamed.forEach((oldName, index) => {
-        const ext = fileUtils.getExtension(oldName);
-        const newName = fileUtils.generateNewName(currentNumber, ext);
-        
-        // Show progress
-        logger.printProgress(index + 1, unnamed.length, oldName);
-
-        // Check if new name already exists
-        if (fileUtils.fileExists(newName)) {
-            logger.clearProgress();
-            logger.warning(`⚠️  Conflict: ${newName} already exists`);
-            logger.dim(`   Skipping: ${oldName}`);
-            skippedCount++;
-            currentNumber++;
-            return;
-        }
-
-        // Rename or dry run
-        if (config.DRY_RUN) {
-            logger.clearProgress();
-            logger.success(`🔍 Would rename: ${oldName} → ${newName}`);
-            renamedCount++;
-            currentNumber++;
-        } else {
-            const result = fileUtils.renameFile(oldName, newName);
-            if (result.success) {
-                renamedCount++;
-                currentNumber++;
-            } else {
-                logger.clearProgress();
-                logger.error(`❌ Failed: ${oldName} → ${newName}`);
-                logger.dim(`   ${result.error}`);
-                skippedCount++;
-            }
-        }
-    });
-
-    logger.clearProgress();
-    logger.separator();
-
-    // Summary
-    const summary = {
-        renamed: renamedCount,
-        skipped: skippedCount,
-        alreadyNamed: named.length,
-        nextNumber: fileUtils.generateNewName(currentNumber, '.jpg'),
+    
+    // Get starting numbers for each type
+    const highestImageNumber = fileUtils.findHighestNumber(allFiles, 'image');
+    const highestVideoNumber = fileUtils.findHighestNumber(allFiles, 'video');
+    
+    logger.info(`Highest image number: ${highestImageNumber}`);
+    logger.info(`Highest video number: ${highestVideoNumber}`);
+    
+    const stats = {
+        images: { renamed: 0, skipped: 0, alreadyNamed: namedImages.length, nextNumber: 0 },
+        videos: { renamed: 0, skipped: 0, alreadyNamed: namedVideos.length, nextNumber: 0 },
+        nonMedia: nonMedia.length,
         dryRun: config.DRY_RUN
     };
     
-    logger.printSummary(summary);
-    
-    if (renamedCount > 0 && !config.DRY_RUN) {
-        logger.success(`🎉 Successfully renamed ${renamedCount} images!`);
-    } else if (renamedCount > 0 && config.DRY_RUN) {
-        logger.info(`🔍 Dry run complete - ${renamedCount} files would be renamed`);
+    // Process images
+    if (unnamedImages.length > 0) {
+        logger.header('🖼️  Renaming Images');
+        let imageNumber = highestImageNumber + 1;
+        
+        const sortedImages = unnamedImages.sort((a, b) => {
+            const statsA = fileUtils.getFileStats(a);
+            const statsB = fileUtils.getFileStats(b);
+            if (!statsA || !statsB) return 0;
+            return statsA.mtime - statsB.mtime;
+        });
+        
+        sortedImages.forEach((file, index) => {
+            const ext = fileUtils.getExtension(file);
+            const newName = fileUtils.generateNewName(imageNumber, ext);
+            
+            logger.printProgress(index + 1, sortedImages.length, file);
+            
+            if (fileUtils.fileExists(newName)) {
+                logger.clearProgress();
+                logger.warning(`Skipped ${file} (target exists)`);
+                stats.images.skipped++;
+                imageNumber++;
+                return;
+            }
+            
+            if (config.DRY_RUN) {
+                stats.images.renamed++;
+            } else {
+                const result = fileUtils.renameFile(file, newName);
+                if (result.success) {
+                    stats.images.renamed++;
+                } else {
+                    logger.clearProgress();
+                    logger.error(`Failed: ${file}`);
+                    stats.images.skipped++;
+                }
+            }
+            imageNumber++;
+        });
+        
+        logger.clearProgress();
+        stats.images.nextNumber = imageNumber;
+        logger.success(`Images: ${stats.images.renamed} renamed, ${stats.images.skipped} skipped`);
+    } else {
+        stats.images.nextNumber = highestImageNumber + 1;
+        logger.info('No unnamed images to process');
     }
+    
+    // Process videos
+    if (unnamedVideos.length > 0) {
+        logger.header('🎬 Renaming Videos');
+        let videoNumber = highestVideoNumber + 1;
+        
+        const sortedVideos = unnamedVideos.sort((a, b) => {
+            const statsA = fileUtils.getFileStats(a);
+            const statsB = fileUtils.getFileStats(b);
+            if (!statsA || !statsB) return 0;
+            return statsA.mtime - statsB.mtime;
+        });
+        
+        sortedVideos.forEach((file, index) => {
+            const ext = fileUtils.getExtension(file);
+            const newName = fileUtils.generateNewName(videoNumber, ext);
+            
+            logger.printProgress(index + 1, sortedVideos.length, file);
+            
+            if (fileUtils.fileExists(newName)) {
+                logger.clearProgress();
+                logger.warning(`Skipped ${file} (target exists)`);
+                stats.videos.skipped++;
+                videoNumber++;
+                return;
+            }
+            
+            if (config.DRY_RUN) {
+                stats.videos.renamed++;
+            } else {
+                const result = fileUtils.renameFile(file, newName);
+                if (result.success) {
+                    stats.videos.renamed++;
+                } else {
+                    logger.clearProgress();
+                    logger.error(`Failed: ${file}`);
+                    stats.videos.skipped++;
+                }
+            }
+            videoNumber++;
+        });
+        
+        logger.clearProgress();
+        stats.videos.nextNumber = videoNumber;
+        logger.success(`Videos: ${stats.videos.renamed} renamed, ${stats.videos.skipped} skipped`);
+    } else {
+        stats.videos.nextNumber = highestVideoNumber + 1;
+        logger.info('No unnamed videos to process');
+    }
+    
+    // Print final summary
+    logger.printSummary(stats);
 }
 
-// Run the main function
-try {
-    main();
-} catch (error) {
-    logger.error(`💥 Unexpected error: ${error.message}`);
-    if (config.VERBOSE) {
-        console.error(error);
-    }
-    process.exit(1);
-}
+// Run the script
+main();
